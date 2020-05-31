@@ -1,15 +1,13 @@
 package br.com.fjunior.rabbitmq.config.rabbit;
 
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-
+@Log4j2
 @Configuration
 public class EmailAMQPConfig {
 	
@@ -25,18 +23,19 @@ public class EmailAMQPConfig {
 	@Value("${rabbit.port}")
 	private Integer port;
 	
+	@Value("${exchange.name}")
+	public String exchangeName;
+	
 	public static final String QUEUE = "emails-to-send";
-	public static final String EXCHANGE_NAME = "Emails";
 	public static final String ROUTING_KEY = "";
 	
 	
 	@Bean
 	public Exchange declareExchange() {
-		return ExchangeBuilder.directExchange( EXCHANGE_NAME )
+		return ExchangeBuilder.directExchange( this.exchangeName )
 			       .durable( true )
 			       .build();
 	}
-	
 	
 	@Bean
 	public Queue declareQueue() {
@@ -53,15 +52,17 @@ public class EmailAMQPConfig {
 	}
 	
 	@Bean
-	public Connection connectionMQ() throws IOException, TimeoutException {
+	public CachingConnectionFactory connectionFactory() {
 		
-		ConnectionFactory factory = new ConnectionFactory();
-		factory.setUsername( this.rabbitUsername );
-		factory.setPassword( this.rabbitPassword );
-		factory.setHost( this.host );
-		factory.setPort( this.port );
+		log.info( "RabbitMQ host started at " + this.host );
 		
-		return factory.newConnection();
+		CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
+		connectionFactory.setUsername( this.rabbitUsername );
+		connectionFactory.setPassword( this.rabbitPassword );
+		connectionFactory.setHost( this.host );
+		connectionFactory.setPort( this.port );
+		
+		return connectionFactory;
 		
 	}
 	
