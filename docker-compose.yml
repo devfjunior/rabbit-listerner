@@ -1,7 +1,7 @@
 version: '3.7'
 services:
 
-  rabbit_backend_development:
+  rabbit_backend:
     build:
       context: .
     image: rabbit_backend:lastest
@@ -11,16 +11,4 @@ services:
       - env/.env.development
     ports:
       - 8092:8080
-    container_name: rabbit_app_development_service
-
-  rabbit_backend_production:
-    build:
-      context: .
-    image: rabbit_backend:lastest
-    expose:
-      - 8080
-    env_file:
-      - env/.env.production
-    ports:
-      - 8082:8080
-    container_name: rabbit_app_production_service
+    container_name: rabbit_app_service
